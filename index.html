@@ -681,6 +681,11 @@
             text-decoration: underline;
         }
 
+        /* Full/short name toggle */
+        .short-name {
+            display: none;
+        }
+
         /* Responsive */
         @media (max-width: 1200px) {
             .main-container {
@@ -747,6 +752,181 @@
             }
 
             .fixture-divider {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 12px 16px;
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+
+            .header-content h1 {
+                font-size: 20px;
+            }
+
+            .header-content .subtitle {
+                font-size: 12px;
+            }
+
+            .focus-teams {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 12px 16px;
+                gap: 8px;
+            }
+
+            .focus-card {
+                padding: 14px 10px;
+            }
+
+            .focus-card .team-crest {
+                width: 36px;
+                height: 36px;
+            }
+
+            .focus-card .team-name {
+                font-size: 13px;
+            }
+
+            .focus-card .stat-value {
+                font-size: 17px;
+            }
+
+            .main-container {
+                padding: 12px 16px;
+                gap: 12px;
+            }
+
+            .points-table-section {
+                padding: 16px 12px;
+            }
+
+            .points-table-section h2 {
+                font-size: 18px;
+                margin-bottom: 14px;
+            }
+
+            /* Hide non-essential table columns on mobile */
+            th.col-p, td.col-p,
+            th.col-w, td.col-w,
+            th.col-d, td.col-d,
+            th.col-l, td.col-l {
+                display: none;
+            }
+
+            td {
+                padding: 10px 6px;
+                font-size: 13px;
+            }
+
+            th {
+                padding: 10px 6px;
+                font-size: 10px;
+            }
+
+            .team-cell {
+                gap: 6px;
+            }
+
+            .team-cell .team-crest {
+                width: 20px;
+                height: 20px;
+            }
+
+            .simulator-section {
+                padding: 16px 12px;
+            }
+
+            .simulator-header h2 {
+                font-size: 18px;
+            }
+
+            .btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .matchweek-nav {
+                gap: 6px;
+            }
+
+            .matchweek-tab {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .fixture-card {
+                padding: 14px 12px;
+            }
+
+            .fixture-team .team-crest {
+                width: 28px;
+                height: 28px;
+            }
+
+            .fixture-team .team-name {
+                font-size: 13px;
+            }
+
+            .result-btn {
+                min-height: 44px;
+                padding: 8px 4px;
+                font-size: 12px;
+            }
+
+            .result-btn .btn-team-name {
+                font-size: 10px;
+            }
+
+            .result-btn .btn-label {
+                font-size: 9px;
+            }
+
+            .modal-content {
+                padding: 20px 16px;
+            }
+
+            .how-it-works-content {
+                max-width: 90vw;
+                padding: 20px 16px;
+            }
+
+            .how-header h2 {
+                font-size: 18px;
+            }
+
+            .how-step-number {
+                min-width: 28px;
+                height: 28px;
+                font-size: 13px;
+            }
+
+            .how-section h3 {
+                font-size: 14px;
+            }
+
+            .how-section p, .how-list li {
+                font-size: 12px;
+            }
+
+            .verdict-banner {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .verdict-list li {
+                font-size: 12px;
+            }
+
+            /* Show short names, hide full names on mobile */
+            .short-name {
+                display: inline;
+            }
+
+            .full-name {
                 display: none;
             }
         }
@@ -987,10 +1167,10 @@
                         <tr>
                             <th>Pos</th>
                             <th>Team</th>
-                            <th>P</th>
-                            <th>W</th>
-                            <th>D</th>
-                            <th>L</th>
+                            <th class="col-p">P</th>
+                            <th class="col-w">W</th>
+                            <th class="col-d">D</th>
+                            <th class="col-l">L</th>
                             <th>GD</th>
                             <th>Pts</th>
                         </tr>
@@ -1202,14 +1382,14 @@
                     <td>
                         <div class="team-cell">
                             ${team.crest ? `<img src="${team.crest}" class="team-crest" alt="${team.name}">` : `<div class="team-badge">${team.shortName.substring(0, 3).toUpperCase()}</div>`}
-                            <span>${team.name}</span>
+                            <span><span class="full-name">${team.name}</span><span class="short-name">${team.shortName}</span></span>
                             ${isFocus ? '<span class="focus-dot"></span>' : ''}
                         </div>
                     </td>
-                    <td>${team.p}</td>
-                    <td>${team.w}</td>
-                    <td>${team.d}</td>
-                    <td>${team.l}</td>
+                    <td class="col-p">${team.p}</td>
+                    <td class="col-w">${team.w}</td>
+                    <td class="col-d">${team.d}</td>
+                    <td class="col-l">${team.l}</td>
                     <td>${team.gd > 0 ? '+' : ''}${team.gd}</td>
                     <td><strong>${team.pts}</strong></td>
                 `;
@@ -1286,7 +1466,7 @@
                             <div class="fixture-team home">
                                 ${fixture.homeCrest ? `<img src="${fixture.homeCrest}" class="team-crest" alt="${fixture.homeName}">` : `<div class="team-badge">${fixture.homeShort.substring(0, 3).toUpperCase()}</div>`}
                                 <div class="team-info">
-                                    <div class="team-name">${fixture.homeName}</div>
+                                    <div class="team-name"><span class="full-name">${fixture.homeName}</span><span class="short-name">${getShortName(fixture.homeName)}</span></div>
                                     <div class="venue">(H)</div>
                                 </div>
                             </div>
@@ -1295,7 +1475,7 @@
 
                             <div class="fixture-team away">
                                 <div class="team-info">
-                                    <div class="team-name">${fixture.awayName}</div>
+                                    <div class="team-name"><span class="full-name">${fixture.awayName}</span><span class="short-name">${getShortName(fixture.awayName)}</span></div>
                                     <div class="venue">(A)</div>
                                 </div>
                                 ${fixture.awayCrest ? `<img src="${fixture.awayCrest}" class="team-crest" alt="${fixture.awayName}">` : `<div class="team-badge">${fixture.awayShort.substring(0, 3).toUpperCase()}</div>`}
