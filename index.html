@@ -681,6 +681,29 @@
             text-decoration: underline;
         }
 
+        .footer-data {
+            margin-bottom: 12px;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            opacity: 0.7;
+            font-size: 11px;
+        }
+
+        .footer-brand:hover {
+            opacity: 1;
+        }
+
+        .brand-logo {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
         /* Full/short name toggle */
         .short-name {
             display: none;
@@ -1204,8 +1227,11 @@
 
     <!-- Footer -->
     <footer>
-        Data provided by <a href="https://www.football-data.org" target="_blank">football-data.org</a> |
-        Built with passion for the beautiful game
+        <div class="footer-data">Data provided by <a href="https://www.football-data.org" target="_blank">football-data.org</a> | Built with passion for the beautiful game</div>
+        <div class="footer-brand">
+            <img src="Blue Karter Logo_2.png" alt="Blue Karter" class="brand-logo">
+            <span>A <strong>Blue Karter</strong> production</span>
+        </div>
     </footer>
 
     <script>
