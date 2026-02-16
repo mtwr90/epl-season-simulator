@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPL 2025-26 Season Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #37003C;
+            --bg-secondary: #2D0033;
+            --bg-card: #4A0E4E;
+            --accent-green: #00FF85;
+            --accent-amber: #E8D44D;
+            --accent-red: #E74C3C;
+            --text-primary: #FFFFFF;
+            --text-secondary: #C4A8C8;
+            --border: #5A1E5E;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 16px;
+            color: var(--accent-green);
+        }
+
+        .modal-content p {
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .modal-content input:focus {
+            outline: none;
+            border-color: var(--accent-green);
+        }
+
+        .modal-content button {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent-green);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-content button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0, 255, 133, 0.3);
+        }
+
+        .modal-content .error {
+            color: var(--accent-red);
+            font-size: 14px;
+            margin-top: 12px;
+        }
+
+        .modal-content .info-link {
+            color: var(--accent-green);
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .modal-content .info-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Header */
+        header {
+            padding: 24px 32px;
+            border-bottom: 2px solid var(--border);
+            background: rgba(74, 14, 78, 0.5);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, var(--text-primary), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-content .subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Focus Team Cards */
+        .focus-teams {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            padding: 24px 32px;
+        }
+
+        .focus-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .focus-card:hover {
+            border-color: var(--accent-green);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 255, 133, 0.2);
+        }
+
+        .focus-card .team-crest {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px;
+        }
+
+        .focus-card .team-name {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .focus-card .team-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 12px;
+        }
+
+        .focus-card .stat {
+            text-align: center;
+        }
+
+        .focus-card .stat-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .focus-card .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-green);
+            margin-top: 4px;
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: grid;
+            grid-template-columns: 40% 60%;
+            gap: 24px;
+            padding: 24px 32px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        /* Points Table */
+        .points-table-section {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            height: fit-content;
+            max-height: calc(100vh - 400px);
+            overflow-y: auto;
+        }
+
+        .points-table-section h2 {
+            margin-bottom: 20px;
+            font-size: 22px;
+            color: var(--accent-green);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            background: var(--bg-card);
+            z-index: 10;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 8px;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            border-bottom: 2px solid var(--border);
+            letter-spacing: 0.5px;
+        }
+
+        th:first-child {
+            text-align: center;
+            width: 40px;
+        }
+
+        tbody tr {
+            transition: transform 0.4s ease, background 0.2s;
+            position: relative;
+        }
+
+        tbody tr.animating {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        tbody tr.ucl-zone {
+            background: linear-gradient(90deg, rgba(0, 255, 133, 0.1) 0%, transparent 100%);
+            border-left: 4px solid var(--accent-green);
+        }
+
+        tbody tr.focus-team {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        tbody tr.focus-team.ucl-zone {
+            background: linear-gradient(90deg, rgba(0, 255, 133, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
+        }
+
+        td {
+            padding: 14px 8px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        td:first-child {
+            text-align: center;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .team-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .team-crest {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        .team-badge {
+            width: 24px;
+            height: 24px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .focus-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            margin-left: 8px;
+        }
+
+        .ucl-separator {
+            height: 2px;
+            background: var(--accent-green);
+            margin: 8px 0;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 255, 133, 0.4);
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* Simulator Section */
+        .simulator-section {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .simulator-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .simulator-header h2 {
+            font-size: 22px;
+            color: var(--accent-green);
+        }
+
+        .simulator-controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            border-color: var(--accent-green);
+            transform: scale(0.95);
+        }
+
+        .btn:active {
+            transform: scale(1.0);
+        }
+
+        .btn-primary {
+            background: var(--accent-green);
+            color: var(--bg-primary);
+            border-color: var(--accent-green);
+        }
+
+        .btn-danger {
+            background: var(--accent-red);
+            color: var(--text-primary);
+            border-color: var(--accent-red);
+        }
+
+        /* Matchweek Navigation */
+        .matchweek-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .matchweek-tab {
+            padding: 10px 16px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .matchweek-tab:hover {
+            border-color: var(--accent-green);
+        }
+
+        .matchweek-tab.active {
+            background: var(--accent-green);
+            color: var(--bg-primary);
+            border-color: var(--accent-green);
+        }
+
+        .matchweek-tab .checkmark {
+            margin-left: 6px;
+        }
+
+        /* Fixtures */
+        .fixtures-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-height: calc(100vh - 500px);
+            overflow-y: auto;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fixture-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.2s;
+        }
+
+        .fixture-card.head-to-head {
+            border-color: var(--accent-green);
+            background: linear-gradient(135deg, rgba(0, 255, 133, 0.1) 0%, var(--bg-secondary) 100%);
+        }
+
+        .fixture-card .h2h-label {
+            display: inline-block;
+            background: var(--accent-green);
+            color: var(--bg-primary);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .fixture-teams {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .fixture-team {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .fixture-team.away {
+            justify-content: flex-end;
+        }
+
+        .fixture-team .team-crest {
+            width: 36px;
+            height: 36px;
+        }
+
+        .fixture-team .team-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .fixture-team.away .team-info {
+            align-items: flex-end;
+        }
+
+        .fixture-team .team-name {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .fixture-team .venue {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .fixture-divider {
+            font-size: 20px;
+            color: var(--text-secondary);
+            font-weight: 700;
+            padding: 0 16px;
+        }
+
+        .result-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        .result-btn {
+            flex: 1;
+            padding: 10px 6px;
+            border: 2px solid;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            line-height: 1.2;
+        }
+
+        .result-btn .btn-team-name {
+            font-size: 11px;
+            font-weight: 600;
+            opacity: 0.85;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .result-btn .btn-label {
+            font-size: 10px;
+            font-weight: 400;
+            opacity: 0.6;
+            text-transform: uppercase;
+        }
+
+        .result-btn.win {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .result-btn.win.selected {
+            background: var(--accent-green);
+            color: var(--bg-primary);
+        }
+
+        .result-btn.win.selected .btn-team-name,
+        .result-btn.win.selected .btn-label {
+            opacity: 1;
+        }
+
+        .result-btn.draw {
+            border-color: var(--accent-amber);
+            color: var(--accent-amber);
+        }
+
+        .result-btn.draw.selected {
+            background: var(--accent-amber);
+            color: var(--bg-primary);
+        }
+
+        .result-btn.draw.selected .btn-label {
+            opacity: 1;
+        }
+
+        .result-btn.loss {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .result-btn.loss.selected {
+            background: var(--accent-red);
+            color: var(--bg-primary);
+        }
+
+        .result-btn.loss.selected .btn-team-name,
+        .result-btn.loss.selected .btn-label {
+            opacity: 1;
+        }
+
+        .result-btn:hover {
+            transform: scale(0.97);
+            opacity: 0.9;
+        }
+
+        .result-btn:active {
+            transform: scale(1.0);
+        }
+
+        /* Verdict Banner */
+        .verdict-banner {
+            margin-top: 24px;
+            padding: 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            text-align: center;
+            animation: slideDown 0.4s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .verdict-banner.qualified {
+            background: var(--accent-green);
+            color: var(--bg-primary);
+        }
+
+        .verdict-banner.missed {
+            background: var(--accent-red);
+            color: var(--text-primary);
+        }
+
+        .verdict-list {
+            list-style: none;
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .verdict-list li {
+            font-size: 14px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            border-top: 2px solid var(--border);
+            margin-top: 32px;
+        }
+
+        footer a {
+            color: var(--accent-green);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            .points-table-section {
+                max-height: 600px;
+            }
+
+            .fixtures-container {
+                max-height: 600px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 16px 20px;
+            }
+
+            .header-content h1 {
+                font-size: 24px;
+            }
+
+            .focus-teams {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 16px 20px;
+                gap: 12px;
+            }
+
+            .main-container {
+                padding: 16px 20px;
+                gap: 16px;
+            }
+
+            .simulator-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .simulator-controls {
+                width: 100%;
+            }
+
+            .simulator-controls .btn {
+                flex: 1;
+            }
+
+            .matchweek-nav {
+                flex-wrap: wrap;
+            }
+
+            .fixture-teams {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .fixture-team.away {
+                justify-content: flex-start;
+            }
+
+            .fixture-team.away .team-info {
+                align-items: flex-start;
+            }
+
+            .fixture-divider {
+                display: none;
+            }
+        }
+
+        /* How It Works Button */
+        .how-it-works-btn {
+            background: transparent;
+            border: 1.5px solid var(--accent-green);
+            color: var(--accent-green);
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .how-it-works-btn:hover {
+            background: var(--accent-green);
+            color: var(--bg-primary);
+        }
+
+        /* How It Works Modal */
+        .how-it-works-content {
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 28px 32px;
+        }
+
+        .how-it-works-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .how-it-works-content::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .how-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .how-header h2 {
+            color: var(--accent-green);
+            font-size: 22px;
+            margin: 0;
+        }
+
+        .how-close-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .how-close-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .how-section {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 22px;
+            align-items: flex-start;
+        }
+
+        .how-step-number {
+            min-width: 32px;
+            height: 32px;
+            background: var(--accent-green);
+            color: var(--bg-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 15px;
+            margin-top: 2px;
+        }
+
+        .how-section h3 {
+            font-size: 15px;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+
+        .how-section p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .how-list {
+            list-style: none;
+            padding: 0;
+            margin: 8px 0;
+        }
+
+        .how-list li {
+            font-size: 13px;
+            color: var(--text-secondary);
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .how-color-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .how-footer {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .how-footer p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            opacity: 0.7;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- How It Works Modal -->
+    <div id="howItWorksModal" class="modal hidden">
+        <div class="modal-content how-it-works-content">
+            <div class="how-header">
+                <h2>How This Works</h2>
+                <button class="how-close-btn" id="closeHowItWorks">&times;</button>
+            </div>
+
+            <div class="how-section">
+                <div class="how-step-number">1</div>
+                <div>
+                    <h3>Pick Your Matchweek</h3>
+                    <p>The season's remaining fixtures for <strong>Aston Villa</strong>, <strong>Manchester United</strong>, <strong>Chelsea</strong>, and <strong>Liverpool</strong> are grouped by matchweek. Use the tabs to navigate between weeks.</p>
+                </div>
+            </div>
+
+            <div class="how-section">
+                <div class="how-step-number">2</div>
+                <div>
+                    <h3>Simulate Each Match</h3>
+                    <p>For every fixture, you'll see two team buttons and a <strong>Draw</strong> button. Click the team you think will win, or pick Draw. The buttons are colour-coded:</p>
+                    <ul class="how-list">
+                        <li><span class="how-color-dot" style="background:var(--accent-green);"></span> <strong>Green</strong> = Home team wins</li>
+                        <li><span class="how-color-dot" style="background:var(--accent-amber);"></span> <strong>Amber</strong> = Draw (1 point each)</li>
+                        <li><span class="how-color-dot" style="background:var(--accent-red);"></span> <strong>Red</strong> = Away team wins</li>
+                    </ul>
+                    <p>Click the same button again to undo your selection.</p>
+                </div>
+            </div>
+
+            <div class="how-section">
+                <div class="how-step-number">3</div>
+                <div>
+                    <h3>Watch the Table Update</h3>
+                    <p>Every selection instantly recalculates the standings. Points are awarded the standard way: <strong>3 for a win, 1 for a draw, 0 for a loss</strong>. Teams are ranked by points, then goal difference, then wins.</p>
+                </div>
+            </div>
+
+            <div class="how-section">
+                <div class="how-step-number">4</div>
+                <div>
+                    <h3>Positions &amp; Champions League</h3>
+                    <p>Arsenal and Manchester City are assumed to finish <strong>1st and 2nd</strong>. The four focus teams compete for positions <strong>3rd through 6th</strong>. The top 5 in the Premier League qualify for the Champions League, so <strong>3 of the 4 focus teams can qualify</strong> — one will miss out.</p>
+                    <p>Teams in qualifying positions are highlighted with a <span style="color:var(--accent-green);font-weight:700;">green border</span>. A dashed line separates the Champions League zone from the rest.</p>
+                </div>
+            </div>
+
+            <div class="how-section">
+                <div class="how-step-number">5</div>
+                <div>
+                    <h3>Shortcuts</h3>
+                    <ul class="how-list">
+                        <li><strong>Simulate This Week</strong> — randomly fills in unsimulated fixtures for the current matchweek</li>
+                        <li><strong>Simulate All Remaining</strong> — randomly fills every remaining match across all matchweeks</li>
+                        <li><strong>Reset All</strong> — clears all your selections and returns to the baseline standings</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="how-section">
+                <div class="how-step-number">6</div>
+                <div>
+                    <h3>The Verdict</h3>
+                    <p>Once every matchweek is complete, a verdict banner reveals which focus teams <strong>qualified for the Champions League</strong> and which ones <strong>missed out</strong>. Try different scenarios to see what your team needs!</p>
+                </div>
+            </div>
+
+            <div class="how-footer">
+                <p>Standings data sourced from football-data.org as of Feb 16, 2026. Only remaining fixtures (matchweeks 27&ndash;38) are available for simulation.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <h1>EPL 2025-26 Season Simulator</h1>
+            <p class="subtitle">Simulate remaining matches and see how the table unfolds</p>
+        </div>
+        <button class="how-it-works-btn" id="openHowItWorks">How This Works</button>
+    </header>
+
+    <!-- Focus Team Cards -->
+    <div class="focus-teams" id="focusTeams"></div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Points Table -->
+        <div class="points-table-section">
+            <h2>Premier League Standings</h2>
+            <div class="table-wrapper">
+                <table id="standingsTable">
+                    <thead>
+                        <tr>
+                            <th>Pos</th>
+                            <th>Team</th>
+                            <th>P</th>
+                            <th>W</th>
+                            <th>D</th>
+                            <th>L</th>
+                            <th>GD</th>
+                            <th>Pts</th>
+                        </tr>
+                    </thead>
+                    <tbody id="standingsBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Match Simulator -->
+        <div class="simulator-section">
+            <div class="simulator-header">
+                <h2>Match Simulator</h2>
+                <div class="simulator-controls">
+                    <button class="btn" id="simulateWeek">Simulate This Week</button>
+                    <button class="btn btn-primary" id="simulateAll">Simulate All Remaining</button>
+                    <button class="btn btn-danger" id="resetAll">Reset All</button>
+                </div>
+            </div>
+
+            <!-- Matchweek Navigation -->
+            <div class="matchweek-nav" id="matchweekNav"></div>
+
+            <!-- Fixtures -->
+            <div class="fixtures-container" id="fixturesContainer"></div>
+
+            <!-- Verdict -->
+            <div id="verdictContainer"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        Data provided by <a href="https://www.football-data.org" target="_blank">football-data.org</a> |
+        Built with passion for the beautiful game
+    </footer>
+
+    <script>
+        // Constants
+        const FOCUS_TEAMS = {
+            58: "Aston Villa",
+            66: "Manchester United",
+            61: "Chelsea",
+            64: "Liverpool"
+        };
+
+        // State
+        let simulatedResults = {};
+        let currentMatchweek = null;
+
+        // Baked-in data from football-data.org API (fetched Feb 16, 2026)
+        const BAKED_DATA = {
+            standings: [
+                { id: 57, name: "Arsenal FC", shortName: "Arsenal", crest: "https://crests.football-data.org/57.png", p: 26, w: 17, d: 6, l: 3, gf: 50, ga: 18, gd: 32, pts: 57 },
+                { id: 65, name: "Manchester City FC", shortName: "Man City", crest: "https://crests.football-data.org/65.png", p: 26, w: 16, d: 5, l: 5, gf: 54, ga: 24, gd: 30, pts: 53 },
+                { id: 58, name: "Aston Villa FC", shortName: "Aston Villa", crest: "https://crests.football-data.org/58.png", p: 26, w: 15, d: 5, l: 6, gf: 37, ga: 27, gd: 10, pts: 50 },
+                { id: 66, name: "Manchester United FC", shortName: "Man United", crest: "https://crests.football-data.org/66.png", p: 26, w: 12, d: 9, l: 5, gf: 47, ga: 37, gd: 10, pts: 45 },
+                { id: 61, name: "Chelsea FC", shortName: "Chelsea", crest: "https://crests.football-data.org/61.png", p: 26, w: 12, d: 8, l: 6, gf: 47, ga: 30, gd: 17, pts: 44 },
+                { id: 64, name: "Liverpool FC", shortName: "Liverpool", crest: "https://crests.football-data.org/64.png", p: 26, w: 12, d: 6, l: 8, gf: 41, ga: 35, gd: 6, pts: 42 },
+                { id: 402, name: "Brentford FC", shortName: "Brentford", crest: "https://crests.football-data.org/402.png", p: 26, w: 12, d: 4, l: 10, gf: 40, ga: 35, gd: 5, pts: 40 },
+                { id: 62, name: "Everton FC", shortName: "Everton", crest: "https://crests.football-data.org/62.png", p: 26, w: 10, d: 7, l: 9, gf: 29, ga: 30, gd: -1, pts: 37 },
+                { id: 1044, name: "AFC Bournemouth", shortName: "Bournemouth", crest: "https://crests.football-data.org/bournemouth.png", p: 26, w: 9, d: 10, l: 7, gf: 43, ga: 45, gd: -2, pts: 37 },
+                { id: 67, name: "Newcastle United FC", shortName: "Newcastle", crest: "https://crests.football-data.org/67.png", p: 26, w: 10, d: 6, l: 10, gf: 37, ga: 37, gd: 0, pts: 36 },
+                { id: 71, name: "Sunderland AFC", shortName: "Sunderland", crest: "https://crests.football-data.org/71.png", p: 26, w: 9, d: 9, l: 8, gf: 27, ga: 30, gd: -3, pts: 36 },
+                { id: 63, name: "Fulham FC", shortName: "Fulham", crest: "https://crests.football-data.org/63.png", p: 26, w: 10, d: 4, l: 12, gf: 35, ga: 40, gd: -5, pts: 34 },
+                { id: 354, name: "Crystal Palace FC", shortName: "Crystal Palace", crest: "https://crests.football-data.org/354.png", p: 26, w: 8, d: 8, l: 10, gf: 28, ga: 32, gd: -4, pts: 32 },
+                { id: 397, name: "Brighton & Hove Albion FC", shortName: "Brighton Hove", crest: "https://crests.football-data.org/397.png", p: 26, w: 7, d: 10, l: 9, gf: 34, ga: 34, gd: 0, pts: 31 },
+                { id: 341, name: "Leeds United FC", shortName: "Leeds United", crest: "https://crests.football-data.org/341.png", p: 26, w: 7, d: 9, l: 10, gf: 36, ga: 45, gd: -9, pts: 30 },
+                { id: 73, name: "Tottenham Hotspur FC", shortName: "Tottenham", crest: "https://crests.football-data.org/73.png", p: 26, w: 7, d: 8, l: 11, gf: 36, ga: 37, gd: -1, pts: 29 },
+                { id: 351, name: "Nottingham Forest FC", shortName: "Nottingham", crest: "https://crests.football-data.org/351.png", p: 26, w: 7, d: 6, l: 13, gf: 25, ga: 38, gd: -13, pts: 27 },
+                { id: 563, name: "West Ham United FC", shortName: "West Ham", crest: "https://crests.football-data.org/563.png", p: 26, w: 6, d: 6, l: 14, gf: 32, ga: 49, gd: -17, pts: 24 },
+                { id: 328, name: "Burnley FC", shortName: "Burnley", crest: "https://crests.football-data.org/328.png", p: 26, w: 4, d: 6, l: 16, gf: 28, ga: 51, gd: -23, pts: 18 },
+                { id: 76, name: "Wolverhampton Wanderers FC", shortName: "Wolverhampton", crest: "https://crests.football-data.org/76.png", p: 26, w: 1, d: 6, l: 19, gf: 16, ga: 48, gd: -32, pts: 9 }
+            ],
+            fixtures: [
+                { matchday: 27, date: "2026-02-21", homeId: 58, homeName: "Aston Villa FC", homeShort: "Aston Villa", homeCrest: "https://crests.football-data.org/58.png", awayId: 341, awayName: "Leeds United FC", awayShort: "Leeds United", awayCrest: "https://crests.football-data.org/341.png" },
+                { matchday: 27, date: "2026-02-21", homeId: 61, homeName: "Chelsea FC", homeShort: "Chelsea", homeCrest: "https://crests.football-data.org/61.png", awayId: 328, awayName: "Burnley FC", awayShort: "Burnley", awayCrest: "https://crests.football-data.org/328.png" },
+                { matchday: 27, date: "2026-02-22", homeId: 351, homeName: "Nottingham Forest FC", homeShort: "Nottingham", homeCrest: "https://crests.football-data.org/351.png", awayId: 64, awayName: "Liverpool FC", awayShort: "Liverpool", awayCrest: "https://crests.football-data.org/64.png" },
+                { matchday: 27, date: "2026-02-23", homeId: 62, homeName: "Everton FC", homeShort: "Everton", homeCrest: "https://crests.football-data.org/62.png", awayId: 66, awayName: "Manchester United FC", awayShort: "Man United", awayCrest: "https://crests.football-data.org/66.png" },
+                { matchday: 28, date: "2026-02-27", homeId: 76, homeName: "Wolverhampton Wanderers FC", homeShort: "Wolves", homeCrest: "https://crests.football-data.org/76.png", awayId: 58, awayName: "Aston Villa FC", awayShort: "Aston Villa", awayCrest: "https://crests.football-data.org/58.png" },
+                { matchday: 28, date: "2026-02-28", homeId: 64, homeName: "Liverpool FC", homeShort: "Liverpool", homeCrest: "https://crests.football-data.org/64.png", awayId: 563, awayName: "West Ham United FC", awayShort: "West Ham", awayCrest: "https://crests.football-data.org/563.png" },
+                { matchday: 28, date: "2026-03-01", homeId: 66, homeName: "Manchester United FC", homeShort: "Man United", homeCrest: "https://crests.football-data.org/66.png", awayId: 354, awayName: "Crystal Palace FC", awayShort: "Crystal Palace", awayCrest: "https://crests.football-data.org/354.png" },
+                { matchday: 28, date: "2026-03-01", homeId: 57, homeName: "Arsenal FC", homeShort: "Arsenal", homeCrest: "https://crests.football-data.org/57.png", awayId: 61, awayName: "Chelsea FC", awayShort: "Chelsea", awayCrest: "https://crests.football-data.org/61.png" },
+                { matchday: 29, date: "2026-03-03", homeId: 76, homeName: "Wolverhampton Wanderers FC", homeShort: "Wolves", homeCrest: "https://crests.football-data.org/76.png", awayId: 64, awayName: "Liverpool FC", awayShort: "Liverpool", awayCrest: "https://crests.football-data.org/64.png" },
+                { matchday: 29, date: "2026-03-04", homeId: 58, homeName: "Aston Villa FC", homeShort: "Aston Villa", homeCrest: "https://crests.football-data.org/58.png", awayId: 61, awayName: "Chelsea FC", awayShort: "Chelsea", awayCrest: "https://crests.football-data.org/61.png" },
+                { matchday: 29, date: "2026-03-04", homeId: 67, homeName: "Newcastle United FC", homeShort: "Newcastle", homeCrest: "https://crests.football-data.org/67.png", awayId: 66, awayName: "Manchester United FC", awayShort: "Man United", awayCrest: "https://crests.football-data.org/66.png" },
+                { matchday: 30, date: "2026-03-14", homeId: 61, homeName: "Chelsea FC", homeShort: "Chelsea", homeCrest: "https://crests.football-data.org/61.png", awayId: 67, awayName: "Newcastle United FC", awayShort: "Newcastle", awayCrest: "https://crests.football-data.org/67.png" },
+                { matchday: 30, date: "2026-03-15", homeId: 66, homeName: "Manchester United FC", homeShort: "Man United", homeCrest: "https://crests.football-data.org/66.png", awayId: 58, awayName: "Aston Villa FC", awayShort: "Aston Villa", awayCrest: "https://crests.football-data.org/58.png" },
+                { matchday: 30, date: "2026-03-15", homeId: 64, homeName: "Liverpool FC", homeShort: "Liverpool", homeCrest: "https://crests.football-data.org/64.png", awayId: 73, awayName: "Tottenham Hotspur FC", awayShort: "Tottenham", awayCrest: "https://crests.football-data.org/73.png" },
+                { matchday: 31, date: "2026-03-20", homeId: 1044, homeName: "AFC Bournemouth", homeShort: "Bournemouth", homeCrest: "https://crests.football-data.org/bournemouth.png", awayId: 66, awayName: "Manchester United FC", awayShort: "Man United", awayCrest: "https://crests.football-data.org/66.png" },
+                { matchday: 31, date: "2026-03-21", homeId: 397, homeName: "Brighton & Hove Albion FC", homeShort: "Brighton", homeCrest: "https://crests.football-data.org/397.png", awayId: 64, awayName: "Liverpool FC", awayShort: "Liverpool", awayCrest: "https://crests.football-data.org/64.png" },
+                { matchday: 31, date: "2026-03-21", homeId: 62, homeName: "Everton FC", homeShort: "Everton", homeCrest: "https://crests.football-data.org/62.png", awayId: 61, awayName: "Chelsea FC", awayShort: "Chelsea", awayCrest: "https://crests.football-data.org/61.png" },
+                { matchday: 31, date: "2026-03-22", homeId: 58, homeName: "Aston Villa FC", homeShort: "Aston Villa", homeCrest: "https://crests.football-data.org/58.png", awayId: 563, awayName: "West Ham United FC", awayShort: "West Ham", awayCrest: "https://crests.football-data.org/563.png" },
+                { matchday: 32, date: "2026-04-11", homeId: 61, homeName: "Chelsea FC", homeShort: "Chelsea", homeCrest: "https://crests.football-data.org/61.png", awayId: 65, awayName: "Manchester City FC", awayShort: "Man City", awayCrest: "https://crests.football-data.org/65.png" },
+                { matchday: 32, date: "2026-04-11", homeId: 64, homeName: "Liverpool FC", homeShort: "Liverpool", homeCrest: "https://crests.football-data.org/64.png", awayId: 63, awayName: "Fulham FC", awayShort: "Fulham", awayCrest: "https://crests.football-data.org/63.png" },
+                { matchday: 32, date: "2026-04-11", homeId: 66, homeName: "Manchester United FC", homeShort: "Man United", homeCrest: "https://crests.football-data.org/66.png", awayId: 341, awayName: "Leeds United FC", awayShort: "Leeds United", awayCrest: "https://crests.football-data.org/341.png" },
+                { matchday: 32, date: "2026-04-11", homeId: 351, homeName: "Nottingham Forest FC", homeShort: "Nottingham", homeCrest: "https://crests.football-data.org/351.png", awayId: 58, awayName: "Aston Villa FC", awayShort: "Aston Villa", awayCrest: "https://crests.football-data.org/58.png" },
+                { matchday: 33, date: "2026-04-18", homeId: 58, homeName: "Aston Villa FC", homeShort: "Aston Villa", homeCrest: "https://crests.football-data.org/58.png", awayId: 71, awayName: "Sunderland AFC", awayShort: "Sunderland", awayCrest: "https://crests.football-data.org/71.png" },
+                { matchday: 33, date: "2026-04-18", homeId: 61, homeName: "Chelsea FC", homeShort: "Chelsea", homeCrest: "https://crests.football-data.org/61.png", awayId: 66, awayName: "Manchester United FC", awayShort: "Man United", awayCrest: "https://crests.football-data.org/66.png" },
+                { matchday: 33, date: "2026-04-18", homeId: 62, homeName: "Everton FC", homeShort: "Everton", homeCrest: "https://crests.football-data.org/62.png", awayId: 64, awayName: "Liverpool FC", awayShort: "Liverpool", awayCrest: "https://crests.football-data.org/64.png" },
+                { matchday: 34, date: "2026-04-25", homeId: 397, homeName: "Brighton & Hove Albion FC", homeShort: "Brighton", homeCrest: "https://crests.football-data.org/397.png", awayId: 61, awayName: "Chelsea FC", awayShort: "Chelsea", awayCrest: "https://crests.football-data.org/61.png" },
+                { matchday: 34, date: "2026-04-25", homeId: 63, homeName: "Fulham FC", homeShort: "Fulham", homeCrest: "https://crests.football-data.org/63.png", awayId: 58, awayName: "Aston Villa FC", awayShort: "Aston Villa", awayCrest: "https://crests.football-data.org/58.png" },
+                { matchday: 34, date: "2026-04-25", homeId: 64, homeName: "Liverpool FC", homeShort: "Liverpool", homeCrest: "https://crests.football-data.org/64.png", awayId: 354, awayName: "Crystal Palace FC", awayShort: "Crystal Palace", awayCrest: "https://crests.football-data.org/354.png" },
+                { matchday: 34, date: "2026-04-25", homeId: 66, homeName: "Manchester United FC", homeShort: "Man United", homeCrest: "https://crests.football-data.org/66.png", awayId: 402, awayName: "Brentford FC", awayShort: "Brentford", awayCrest: "https://crests.football-data.org/402.png" },
+                { matchday: 35, date: "2026-05-02", homeId: 58, homeName: "Aston Villa FC", homeShort: "Aston Villa", homeCrest: "https://crests.football-data.org/58.png", awayId: 73, awayName: "Tottenham Hotspur FC", awayShort: "Tottenham", awayCrest: "https://crests.football-data.org/73.png" },
+                { matchday: 35, date: "2026-05-02", homeId: 61, homeName: "Chelsea FC", homeShort: "Chelsea", homeCrest: "https://crests.football-data.org/61.png", awayId: 351, awayName: "Nottingham Forest FC", awayShort: "Nottingham", awayCrest: "https://crests.football-data.org/351.png" },
+                { matchday: 35, date: "2026-05-02", homeId: 66, homeName: "Manchester United FC", homeShort: "Man United", homeCrest: "https://crests.football-data.org/66.png", awayId: 64, awayName: "Liverpool FC", awayShort: "Liverpool", awayCrest: "https://crests.football-data.org/64.png" },
+                { matchday: 36, date: "2026-05-09", homeId: 71, homeName: "Sunderland AFC", homeShort: "Sunderland", homeCrest: "https://crests.football-data.org/71.png", awayId: 66, awayName: "Manchester United FC", awayShort: "Man United", awayCrest: "https://crests.football-data.org/66.png" },
+                { matchday: 36, date: "2026-05-09", homeId: 328, homeName: "Burnley FC", homeShort: "Burnley", homeCrest: "https://crests.football-data.org/328.png", awayId: 58, awayName: "Aston Villa FC", awayShort: "Aston Villa", awayCrest: "https://crests.football-data.org/58.png" },
+                { matchday: 36, date: "2026-05-09", homeId: 64, homeName: "Liverpool FC", homeShort: "Liverpool", homeCrest: "https://crests.football-data.org/64.png", awayId: 61, awayName: "Chelsea FC", awayShort: "Chelsea", awayCrest: "https://crests.football-data.org/61.png" },
+                { matchday: 37, date: "2026-05-17", homeId: 58, homeName: "Aston Villa FC", homeShort: "Aston Villa", homeCrest: "https://crests.football-data.org/58.png", awayId: 64, awayName: "Liverpool FC", awayShort: "Liverpool", awayCrest: "https://crests.football-data.org/64.png" },
+                { matchday: 37, date: "2026-05-17", homeId: 61, homeName: "Chelsea FC", homeShort: "Chelsea", homeCrest: "https://crests.football-data.org/61.png", awayId: 73, awayName: "Tottenham Hotspur FC", awayShort: "Tottenham", awayCrest: "https://crests.football-data.org/73.png" },
+                { matchday: 37, date: "2026-05-17", homeId: 66, homeName: "Manchester United FC", homeShort: "Man United", homeCrest: "https://crests.football-data.org/66.png", awayId: 351, awayName: "Nottingham Forest FC", awayShort: "Nottingham", awayCrest: "https://crests.football-data.org/351.png" },
+                { matchday: 38, date: "2026-05-24", homeId: 71, homeName: "Sunderland AFC", homeShort: "Sunderland", homeCrest: "https://crests.football-data.org/71.png", awayId: 61, awayName: "Chelsea FC", awayShort: "Chelsea", awayCrest: "https://crests.football-data.org/61.png" },
+                { matchday: 38, date: "2026-05-24", homeId: 397, homeName: "Brighton & Hove Albion FC", homeShort: "Brighton", homeCrest: "https://crests.football-data.org/397.png", awayId: 66, awayName: "Manchester United FC", awayShort: "Man United", awayCrest: "https://crests.football-data.org/66.png" },
+                { matchday: 38, date: "2026-05-24", homeId: 64, homeName: "Liverpool FC", homeShort: "Liverpool", homeCrest: "https://crests.football-data.org/64.png", awayId: 402, awayName: "Brentford FC", awayShort: "Brentford", awayCrest: "https://crests.football-data.org/402.png" },
+                { matchday: 38, date: "2026-05-24", homeId: 65, homeName: "Manchester City FC", homeShort: "Man City", homeCrest: "https://crests.football-data.org/65.png", awayId: 58, awayName: "Aston Villa FC", awayShort: "Aston Villa", awayCrest: "https://crests.football-data.org/58.png" }
+            ]
+        };
+
+        // Short name lookup for button labels
+        const SHORT_NAMES = {
+            'Arsenal FC': 'Arsenal', 'Manchester City FC': 'Man City', 'Aston Villa FC': 'Aston Villa',
+            'Manchester United FC': 'Man Utd', 'Chelsea FC': 'Chelsea', 'Liverpool FC': 'Liverpool',
+            'Brentford FC': 'Brentford', 'Everton FC': 'Everton', 'AFC Bournemouth': 'Bournemouth',
+            'Newcastle United FC': 'Newcastle', 'Sunderland AFC': 'Sunderland', 'Fulham FC': 'Fulham',
+            'Crystal Palace FC': 'C. Palace', 'Brighton & Hove Albion FC': 'Brighton',
+            'Leeds United FC': 'Leeds', 'Tottenham Hotspur FC': 'Spurs',
+            'Nottingham Forest FC': 'Nott Forest', 'West Ham United FC': 'West Ham',
+            'Burnley FC': 'Burnley', 'Wolverhampton Wanderers FC': 'Wolves'
+        };
+
+        function getShortName(fullName) {
+            return SHORT_NAMES[fullName] || fullName;
+        }
+
+        // Initialize from baked data
+        const baseStandings = BAKED_DATA.standings;
+        const allMatches = BAKED_DATA.fixtures;
+
+        // Rendering
+        function render() {
+            renderFocusTeams();
+            renderStandings();
+            renderMatchweekNav();
+            renderFixtures();
+            checkVerdict();
+        }
+
+        function renderFocusTeams() {
+            const container = document.getElementById('focusTeams');
+            const standings = recalculateStandings();
+            const filtered = standings.filter(t => !EXCLUDED_TEAMS.includes(t.id));
+
+            container.innerHTML = Object.entries(FOCUS_TEAMS).map(([id, name]) => {
+                const team = filtered.find(t => t.id == id);
+                const position = filtered.indexOf(team) + 3; // offset by 2 (Arsenal, Man City)
+
+                return `
+                    <div class="focus-card">
+                        ${team.crest ? `<img src="${team.crest}" class="team-crest" alt="${name}">` : `<div class="team-badge">${name.substring(0, 3).toUpperCase()}</div>`}
+                        <div class="team-name">${name}</div>
+                        <div class="team-stats">
+                            <div class="stat">
+                                <div class="stat-label">Position</div>
+                                <div class="stat-value">${position}</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-label">Points</div>
+                                <div class="stat-value">${team.pts}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // IDs for teams assumed to finish 1st and 2nd
+        const EXCLUDED_TEAMS = [57, 65]; // Arsenal, Manchester City
+
+        function renderStandings() {
+            const standings = recalculateStandings();
+            const tbody = document.getElementById('standingsBody');
+
+            // Show only focus teams — Arsenal & Man City assumed 1st & 2nd
+            const filteredStandings = standings.filter(t => !EXCLUDED_TEAMS.includes(t.id));
+            const displayStandings = filteredStandings.filter(t => FOCUS_TEAMS[t.id]);
+
+            // Get previous positions for animation
+            const previousPositions = {};
+            tbody.querySelectorAll('tr').forEach((row, index) => {
+                const teamId = row.dataset.teamId;
+                previousPositions[teamId] = index;
+            });
+
+            tbody.innerHTML = '';
+
+            displayStandings.forEach((team) => {
+                const position = filteredStandings.indexOf(team) + 3; // position among all 18 teams, offset by 2
+                const isUCL = position <= 5;
+                const isFocus = FOCUS_TEAMS[team.id];
+
+                const row = document.createElement('tr');
+                row.dataset.teamId = team.id;
+                row.className = `${isUCL ? 'ucl-zone' : ''} ${isFocus ? 'focus-team' : ''}`;
+
+                row.innerHTML = `
+                    <td>${position}</td>
+                    <td>
+                        <div class="team-cell">
+                            ${team.crest ? `<img src="${team.crest}" class="team-crest" alt="${team.name}">` : `<div class="team-badge">${team.shortName.substring(0, 3).toUpperCase()}</div>`}
+                            <span>${team.name}</span>
+                            ${isFocus ? '<span class="focus-dot"></span>' : ''}
+                        </div>
+                    </td>
+                    <td>${team.p}</td>
+                    <td>${team.w}</td>
+                    <td>${team.d}</td>
+                    <td>${team.l}</td>
+                    <td>${team.gd > 0 ? '+' : ''}${team.gd}</td>
+                    <td><strong>${team.pts}</strong></td>
+                `;
+
+                tbody.appendChild(row);
+            });
+
+            // Add UCL separator between qualifying (<=5) and non-qualifying (>5) focus teams
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            for (let i = 0; i < rows.length - 1; i++) {
+                const currPos = parseInt(rows[i].querySelector('td').textContent);
+                const nextPos = parseInt(rows[i + 1].querySelector('td').textContent);
+                if (currPos <= 5 && nextPos > 5) {
+                    const separator = document.createElement('tr');
+                    separator.innerHTML = '<td colspan="8"><hr class="ucl-separator"></td>';
+                    rows[i].after(separator);
+                    break;
+                }
+            }
+        }
+
+        function renderMatchweekNav() {
+            const matchweeks = [...new Set(allMatches.map(m => m.matchday))].sort((a, b) => a - b);
+            const nav = document.getElementById('matchweekNav');
+
+            if (!currentMatchweek && matchweeks.length > 0) {
+                currentMatchweek = matchweeks[0];
+            }
+
+            nav.innerHTML = matchweeks.map(mw => {
+                const fixtures = allMatches.filter(m => m.matchday === mw);
+                const allSimulated = fixtures.every(f => getFixtureKey(f) in simulatedResults);
+
+                return `
+                    <div class="matchweek-tab ${mw === currentMatchweek ? 'active' : ''}" data-matchweek="${mw}">
+                        MW ${mw}
+                        ${allSimulated ? '<span class="checkmark">✓</span>' : ''}
+                    </div>
+                `;
+            }).join('');
+
+            nav.querySelectorAll('.matchweek-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    currentMatchweek = parseInt(tab.dataset.matchweek);
+                    renderMatchweekNav();
+                    renderFixtures();
+                });
+            });
+        }
+
+        function renderFixtures() {
+            const container = document.getElementById('fixturesContainer');
+            const fixtures = allMatches.filter(m => m.matchday === currentMatchweek);
+
+            // Add matchweek date header
+            if (fixtures.length > 0) {
+                const date = new Date(fixtures[0].date);
+                const dateStr = date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+                container.innerHTML = `<div style="text-align:center;color:var(--text-secondary);margin-bottom:16px;font-size:14px;">Matchweek ${currentMatchweek} &mdash; ${dateStr}</div>`;
+            } else {
+                container.innerHTML = '';
+            }
+
+            container.innerHTML += fixtures.map(fixture => {
+                const isH2H = FOCUS_TEAMS[fixture.homeId] && FOCUS_TEAMS[fixture.awayId];
+                const fixtureKey = getFixtureKey(fixture);
+                const result = simulatedResults[fixtureKey];
+
+                return `
+                    <div class="fixture-card ${isH2H ? 'head-to-head' : ''}" data-fixture="${fixtureKey}">
+                        ${isH2H ? '<div class="h2h-label">Head-to-Head</div>' : ''}
+
+                        <div class="fixture-teams">
+                            <div class="fixture-team home">
+                                ${fixture.homeCrest ? `<img src="${fixture.homeCrest}" class="team-crest" alt="${fixture.homeName}">` : `<div class="team-badge">${fixture.homeShort.substring(0, 3).toUpperCase()}</div>`}
+                                <div class="team-info">
+                                    <div class="team-name">${fixture.homeName}</div>
+                                    <div class="venue">(H)</div>
+                                </div>
+                            </div>
+
+                            <div class="fixture-divider">vs</div>
+
+                            <div class="fixture-team away">
+                                <div class="team-info">
+                                    <div class="team-name">${fixture.awayName}</div>
+                                    <div class="venue">(A)</div>
+                                </div>
+                                ${fixture.awayCrest ? `<img src="${fixture.awayCrest}" class="team-crest" alt="${fixture.awayName}">` : `<div class="team-badge">${fixture.awayShort.substring(0, 3).toUpperCase()}</div>`}
+                            </div>
+                        </div>
+
+                        <div class="result-buttons">
+                            <button class="result-btn win ${result === 'W' ? 'selected' : ''}" data-result="W" title="${fixture.homeName} win">
+                                <span class="btn-team-name">${getShortName(fixture.homeName)}</span>
+                                <span class="btn-label">Win</span>
+                            </button>
+                            <button class="result-btn draw ${result === 'D' ? 'selected' : ''}" data-result="D" title="Draw">
+                                <span class="btn-label" style="opacity:1;font-size:13px;font-weight:700;">Draw</span>
+                            </button>
+                            <button class="result-btn loss ${result === 'L' ? 'selected' : ''}" data-result="L" title="${fixture.awayName} win">
+                                <span class="btn-team-name">${getShortName(fixture.awayName)}</span>
+                                <span class="btn-label">Win</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Add event listeners
+            container.querySelectorAll('.result-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const fixtureCard = btn.closest('.fixture-card');
+                    const fixtureKey = fixtureCard.dataset.fixture;
+                    const result = btn.dataset.result;
+
+                    if (simulatedResults[fixtureKey] === result) {
+                        delete simulatedResults[fixtureKey];
+                    } else {
+                        simulatedResults[fixtureKey] = result;
+                    }
+
+                    render();
+                });
+            });
+        }
+
+        function getFixtureKey(fixture) {
+            return `${fixture.matchday}-${fixture.homeId}-${fixture.awayId}`;
+        }
+
+        // Simulation Logic
+        function recalculateStandings() {
+            // Deep copy baseline
+            const standings = baseStandings.map(team => ({ ...team }));
+
+            // Apply simulated results
+            Object.entries(simulatedResults).forEach(([key, result]) => {
+                const [matchday, homeId, awayId] = key.split('-').map(Number);
+                const fixture = allMatches.find(m =>
+                    m.matchday === matchday && m.homeId === homeId && m.awayId === awayId
+                );
+
+                if (!fixture) return;
+
+                const focusTeam = FOCUS_TEAMS[homeId] ? homeId : awayId;
+                const isFocusHome = focusTeam === homeId;
+                const opponentId = isFocusHome ? awayId : homeId;
+
+                const focus = standings.find(t => t.id === focusTeam);
+                const opponent = standings.find(t => t.id === opponentId);
+
+                if (!focus || !opponent) return;
+
+                // Determine actual result from focus team's perspective
+                let actualResult = result;
+                if (!isFocusHome) {
+                    // Result is from home team perspective, flip for away team
+                    if (result === 'W') actualResult = 'L';
+                    else if (result === 'L') actualResult = 'W';
+                }
+
+                focus.p++;
+                opponent.p++;
+
+                if (actualResult === 'W') {
+                    focus.pts += 3;
+                    focus.w++;
+                    focus.gf += 2;
+                    focus.gd += 2;
+                    opponent.l++;
+                    opponent.ga += 2;
+                    opponent.gd -= 2;
+                } else if (actualResult === 'D') {
+                    focus.pts++;
+                    focus.d++;
+                    focus.gf++;
+                    focus.ga++;
+                    opponent.pts++;
+                    opponent.d++;
+                    opponent.gf++;
+                    opponent.ga++;
+                } else {
+                    focus.l++;
+                    focus.ga += 2;
+                    focus.gd -= 2;
+                    opponent.pts += 3;
+                    opponent.w++;
+                    opponent.gf += 2;
+                    opponent.gd += 2;
+                }
+            });
+
+            // Sort: pts DESC → gd DESC → wins DESC → alphabetical
+            standings.sort((a, b) => {
+                if (b.pts !== a.pts) return b.pts - a.pts;
+                if (b.gd !== a.gd) return b.gd - a.gd;
+                if (b.w !== a.w) return b.w - a.w;
+                return a.name.localeCompare(b.name);
+            });
+
+            return standings;
+        }
+
+        function simulateWeek() {
+            const fixtures = allMatches.filter(m => m.matchday === currentMatchweek);
+            fixtures.forEach(fixture => {
+                const key = getFixtureKey(fixture);
+                if (!(key in simulatedResults)) {
+                    simulatedResults[key] = randomResult();
+                }
+            });
+            render();
+        }
+
+        function simulateAll() {
+            allMatches.forEach(fixture => {
+                const key = getFixtureKey(fixture);
+                if (!(key in simulatedResults)) {
+                    simulatedResults[key] = randomResult();
+                }
+            });
+            render();
+        }
+
+        function resetAll() {
+            simulatedResults = {};
+            render();
+        }
+
+        function randomResult() {
+            const rand = Math.random();
+            if (rand < 0.45) return 'W';
+            if (rand < 0.70) return 'D';
+            return 'L';
+        }
+
+        // Verdict
+        function checkVerdict() {
+            const totalFixtures = allMatches.length;
+            const simulatedCount = Object.keys(simulatedResults).length;
+
+            if (simulatedCount < totalFixtures) {
+                document.getElementById('verdictContainer').innerHTML = '';
+                return;
+            }
+
+            const standings = recalculateStandings();
+            const qualified = [];
+            const missed = [];
+
+            const filtered = standings.filter(t => !EXCLUDED_TEAMS.includes(t.id));
+
+            Object.entries(FOCUS_TEAMS).forEach(([id, name]) => {
+                const team = filtered.find(t => t.id == id);
+                const position = filtered.indexOf(team) + 3; // offset for Arsenal & Man City at 1st & 2nd
+
+                if (position <= 5) {
+                    qualified.push({ name, position, pts: team.pts });
+                } else {
+                    missed.push({ name, position, pts: team.pts });
+                }
+            });
+
+            let html = '';
+
+            if (qualified.length > 0) {
+                html += `
+                    <div class="verdict-banner qualified">
+                        CHAMPIONS LEAGUE QUALIFIED
+                        <ul class="verdict-list">
+                            ${qualified.map(t => `<li>${t.name} - ${t.position}${getOrdinal(t.position)} place (${t.pts} pts)</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            if (missed.length > 0) {
+                html += `
+                    <div class="verdict-banner missed">
+                        MISSED OUT
+                        <ul class="verdict-list">
+                            ${missed.map(t => `<li>${t.name} - ${t.position}${getOrdinal(t.position)} place (${t.pts} pts)</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            document.getElementById('verdictContainer').innerHTML = html;
+        }
+
+        function getOrdinal(n) {
+            const s = ["th", "st", "nd", "rd"];
+            const v = n % 100;
+            return s[(v - 20) % 10] || s[v] || s[0];
+        }
+
+        // Event Listeners
+        document.getElementById('simulateWeek').addEventListener('click', simulateWeek);
+        document.getElementById('simulateAll').addEventListener('click', simulateAll);
+        document.getElementById('resetAll').addEventListener('click', resetAll);
+
+        // How It Works modal
+        document.getElementById('openHowItWorks').addEventListener('click', () => {
+            document.getElementById('howItWorksModal').classList.remove('hidden');
+        });
+        document.getElementById('closeHowItWorks').addEventListener('click', () => {
+            document.getElementById('howItWorksModal').classList.add('hidden');
+        });
+        document.getElementById('howItWorksModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                e.currentTarget.classList.add('hidden');
+            }
+        });
+
+        // Start — render immediately from baked data
+        render();
+    </script>
+</body>
+</html>
