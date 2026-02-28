@@ -1781,6 +1781,9 @@
                 }
             });
 
+            qualified.sort((a, b) => a.position - b.position);
+            missed.sort((a, b) => a.position - b.position);
+
             let html = '';
 
             if (qualified.length > 0) {
