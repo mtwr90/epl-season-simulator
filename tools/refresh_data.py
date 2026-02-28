@@ -16,6 +16,7 @@ Key logic:
 """
 
 import json
+import math
 import os
 import re
 import sys
@@ -107,6 +108,114 @@ def build_played_games_map(standings):
     return {t["id"]: t["p"] for t in standings}
 
 
+def compute_home_away_stats(all_matches):
+    """Compute per-team home/away goal stats from FINISHED matches.
+
+    Returns:
+        stats: dict of team_id -> {home_gf, home_ga, home_games,
+                                    away_gf, away_ga, away_games}
+        league_avg_home: average home goals per match
+        league_avg_away: average away goals per match
+    """
+    stats = {}
+    total_home_goals = 0
+    total_away_goals = 0
+    total_finished = 0
+
+    for m in all_matches:
+        if m["status"] != "FINISHED":
+            continue
+        home_id = m["homeTeam"]["id"]
+        away_id = m["awayTeam"]["id"]
+        home_goals = m["score"]["fullTime"]["home"]
+        away_goals = m["score"]["fullTime"]["away"]
+        if home_goals is None or away_goals is None:
+            continue
+
+        total_home_goals += home_goals
+        total_away_goals += away_goals
+        total_finished += 1
+
+        for tid in (home_id, away_id):
+            if tid not in stats:
+                stats[tid] = {
+                    "home_gf": 0, "home_ga": 0, "home_games": 0,
+                    "away_gf": 0, "away_ga": 0, "away_games": 0,
+                }
+
+        stats[home_id]["home_gf"] += home_goals
+        stats[home_id]["home_ga"] += away_goals
+        stats[home_id]["home_games"] += 1
+
+        stats[away_id]["away_gf"] += away_goals
+        stats[away_id]["away_ga"] += home_goals
+        stats[away_id]["away_games"] += 1
+
+    league_avg_home = total_home_goals / total_finished if total_finished else 1.4
+    league_avg_away = total_away_goals / total_finished if total_finished else 1.1
+
+    return stats, league_avg_home, league_avg_away
+
+
+def poisson_prob(lam, k):
+    """P(X=k) for Poisson distribution with parameter lambda."""
+    return (lam ** k) * math.exp(-lam) / math.factorial(k)
+
+
+def calculate_match_probabilities(home_id, away_id, team_stats,
+                                  league_avg_home, league_avg_away):
+    """Calculate win/draw/loss probabilities using Poisson model.
+
+    Returns (prob_home_win, prob_draw, prob_away_win).
+    """
+    h = team_stats.get(home_id)
+    a = team_stats.get(away_id)
+
+    if not h or h["home_games"] == 0:
+        home_attack = 1.0
+        home_defense = 1.0
+    else:
+        home_attack = (h["home_gf"] / h["home_games"]) / league_avg_home
+        home_defense = (h["home_ga"] / h["home_games"]) / league_avg_away
+
+    if not a or a["away_games"] == 0:
+        away_attack = 1.0
+        away_defense = 1.0
+    else:
+        away_attack = (a["away_gf"] / a["away_games"]) / league_avg_away
+        away_defense = (a["away_ga"] / a["away_games"]) / league_avg_home
+
+    lambda_home = max(0.2, min(5.0, home_attack * away_defense * league_avg_home))
+    lambda_away = max(0.2, min(5.0, away_attack * home_defense * league_avg_away))
+
+    MAX_GOALS = 7
+    pw = pd = pl = 0.0
+    for hg in range(MAX_GOALS):
+        for ag in range(MAX_GOALS):
+            p = poisson_prob(lambda_home, hg) * poisson_prob(lambda_away, ag)
+            if hg > ag:
+                pw += p
+            elif hg == ag:
+                pd += p
+            else:
+                pl += p
+
+    total = pw + pd + pl
+    pw /= total
+    pd /= total
+    pl /= total
+
+    return pw, pd, pl
+
+
+def normalize_and_round(pw, pd, pl):
+    """Round probabilities ensuring they sum to exactly 1.00."""
+    pw = round(pw, 2)
+    pd = round(pd, 2)
+    pl = round(1.0 - pw - pd, 2)
+    return pw, pd, pl
+
+
 def cross_validate(fixtures, standings, all_matches):
     """
     Cross-validate fixtures against standings to catch edge cases:
@@ -195,11 +304,13 @@ def format_fixture_js(f):
     return (
         '                { matchday: %d, date: "%s", '
         'homeId: %d, homeName: "%s", homeShort: "%s", homeCrest: "%s", '
-        'awayId: %d, awayName: "%s", awayShort: "%s", awayCrest: "%s" }'
+        'awayId: %d, awayName: "%s", awayShort: "%s", awayCrest: "%s", '
+        'probW: %.2f, probD: %.2f, probL: %.2f }'
         % (
             f["matchday"], d,
             h["id"], h["name"], h["shortName"], h["crest"],
             a["id"], a["name"], a["shortName"], a["crest"],
+            f.get("probW", 0.45), f.get("probD", 0.25), f.get("probL", 0.30),
         )
     )
 
@@ -300,6 +411,13 @@ def main():
     all_matches = fetch_all_matches(api_key)
     print("  Total matches: %d" % len(all_matches))
 
+    # 2b. Compute home/away stats for Poisson probability model
+    print()
+    print("Computing match probabilities (Poisson model)...")
+    team_stats, league_avg_home, league_avg_away = compute_home_away_stats(all_matches)
+    print("  League avg home goals/match: %.2f" % league_avg_home)
+    print("  League avg away goals/match: %.2f" % league_avg_away)
+
     # 3. Filter to focus-team matches that are unplayed
     focus_unplayed = [m for m in all_matches if is_focus_match(m) and is_unplayed(m)]
     print("  Focus team unplayed: %d" % len(focus_unplayed))
@@ -325,6 +443,25 @@ def main():
     if valid_fixtures:
         mws = sorted(set(f["matchday"] for f in valid_fixtures))
         print("  Matchweeks: %d-%d (%d weeks)" % (min(mws), max(mws), len(mws)))
+
+    # 4b. Calculate probabilities for each fixture
+    print()
+    print("Match probabilities:")
+    for f in valid_fixtures:
+        home_id = f["homeTeam"]["id"]
+        away_id = f["awayTeam"]["id"]
+        pw, pd, pl = calculate_match_probabilities(
+            home_id, away_id, team_stats, league_avg_home, league_avg_away
+        )
+        pw, pd, pl = normalize_and_round(pw, pd, pl)
+        f["probW"] = pw
+        f["probD"] = pd
+        f["probL"] = pl
+        print("  MW%d %s vs %s: W=%.0f%% D=%.0f%% L=%.0f%%" % (
+            f["matchday"],
+            f["homeTeam"]["shortName"], f["awayTeam"]["shortName"],
+            pw * 100, pd * 100, pl * 100,
+        ))
 
     # Per-team fixture count
     print()
