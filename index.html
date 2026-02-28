@@ -1162,7 +1162,7 @@
             </div>
 
             <div class="how-footer">
-                <p>Standings data sourced from football-data.org as of Feb 23, 2026. Only remaining fixtures (matchweeks 28&ndash;38) are available for simulation.</p>
+                <p>Standings data sourced from football-data.org as of Feb 27, 2026. Only remaining fixtures (matchweeks 28&ndash;38) are available for simulation.</p>
             </div>
         </div>
     </div>
@@ -1247,12 +1247,12 @@
         let simulatedResults = {};
         let currentMatchweek = null;
 
-        // Baked-in data from football-data.org API (fetched Feb 23, 2026)
+        // Baked-in data from football-data.org API (fetched Feb 27, 2026)
         const BAKED_DATA = {
             standings: [
                 { id: 57, name: "Arsenal FC", shortName: "Arsenal", crest: "https://crests.football-data.org/57.png", p: 28, w: 18, d: 7, l: 3, gf: 56, ga: 21, gd: 35, pts: 61 },
                 { id: 65, name: "Manchester City FC", shortName: "Man City", crest: "https://crests.football-data.org/65.png", p: 27, w: 17, d: 5, l: 5, gf: 56, ga: 25, gd: 31, pts: 56 },
-                { id: 58, name: "Aston Villa FC", shortName: "Aston Villa", crest: "https://crests.football-data.org/58.png", p: 27, w: 15, d: 6, l: 6, gf: 38, ga: 28, gd: 10, pts: 51 },
+                { id: 58, name: "Aston Villa FC", shortName: "Aston Villa", crest: "https://crests.football-data.org/58.png", p: 28, w: 15, d: 6, l: 7, gf: 38, ga: 30, gd: 8, pts: 51 },
                 { id: 66, name: "Manchester United FC", shortName: "Man United", crest: "https://crests.football-data.org/66.png", p: 27, w: 13, d: 9, l: 5, gf: 48, ga: 37, gd: 11, pts: 48 },
                 { id: 61, name: "Chelsea FC", shortName: "Chelsea", crest: "https://crests.football-data.org/61.png", p: 27, w: 12, d: 9, l: 6, gf: 48, ga: 31, gd: 17, pts: 45 },
                 { id: 64, name: "Liverpool FC", shortName: "Liverpool", crest: "https://crests.football-data.org/64.png", p: 27, w: 13, d: 6, l: 8, gf: 42, ga: 35, gd: 7, pts: 45 },
@@ -1269,7 +1269,7 @@
                 { id: 351, name: "Nottingham Forest FC", shortName: "Nottingham", crest: "https://crests.football-data.org/351.png", p: 27, w: 7, d: 6, l: 14, gf: 25, ga: 39, gd: -14, pts: 27 },
                 { id: 563, name: "West Ham United FC", shortName: "West Ham", crest: "https://crests.football-data.org/563.png", p: 27, w: 6, d: 7, l: 14, gf: 32, ga: 49, gd: -17, pts: 25 },
                 { id: 328, name: "Burnley FC", shortName: "Burnley", crest: "https://crests.football-data.org/328.png", p: 27, w: 4, d: 7, l: 16, gf: 29, ga: 52, gd: -23, pts: 19 },
-                { id: 76, name: "Wolverhampton Wanderers FC", shortName: "Wolverhampton", crest: "https://crests.football-data.org/76.png", p: 28, w: 1, d: 7, l: 20, gf: 18, ga: 51, gd: -33, pts: 10 }
+                { id: 76, name: "Wolverhampton Wanderers FC", shortName: "Wolverhampton", crest: "https://crests.football-data.org/76.png", p: 29, w: 2, d: 7, l: 20, gf: 20, ga: 51, gd: -31, pts: 13 }
             ],
             fixtures: [
                 { matchday: 28, date: "2026-02-27", homeId: 76, homeName: "Wolverhampton Wanderers FC", homeShort: "Wolverhampton", homeCrest: "https://crests.football-data.org/76.png", awayId: 58, awayName: "Aston Villa FC", awayShort: "Aston Villa", awayCrest: "https://crests.football-data.org/58.png" },
