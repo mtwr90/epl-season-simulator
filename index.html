@@ -1348,9 +1348,14 @@
             const standings = recalculateStandings();
             const filtered = standings.filter(t => !EXCLUDED_TEAMS.includes(t.id));
 
-            container.innerHTML = Object.entries(FOCUS_TEAMS).map(([id, name]) => {
+            // Sort focus teams by their current standings position
+            const focusEntries = Object.entries(FOCUS_TEAMS).map(([id, name]) => {
                 const team = filtered.find(t => t.id == id);
-                const position = filtered.indexOf(team) + 3; // offset by 2 (Arsenal, Man City)
+                const position = filtered.indexOf(team) + 3;
+                return { id, name, team, position };
+            }).sort((a, b) => a.position - b.position);
+
+            container.innerHTML = focusEntries.map(({ id, name, team, position }) => {
 
                 return `
                     <div class="focus-card">
