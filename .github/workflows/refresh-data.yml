@@ -20,7 +20,7 @@ jobs:
 
       - name: Run data refresh
         env:
-          FOOTBALL_DATA_API_KEY: ${{ secrets.FOOTBALL_DATA_API_KEY }}
+          FOOTBALL_DATA_API_KEY: ${{ secrets.epl-sim-key }}
         run: python3 tools/refresh_data.py
 
       - name: Commit and push if changed
