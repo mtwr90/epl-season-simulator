@@ -35,19 +35,25 @@ EXCLUDED_IDS = {57, 65}
 
 # Load API key
 def get_api_key():
+    # 1. Environment variable (used by GitHub Actions)
+    env_val = os.environ.get("FOOTBALL_DATA_API_KEY")
+    if env_val:
+        return env_val
+    # 2. config.js (local dev)
     config_path = os.path.join(PROJECT_DIR, "config.js")
     if os.path.exists(config_path):
         with open(config_path) as f:
             match = re.search(r"FOOTBALL_DATA_API_KEY:\s*['\"]([^'\"]+)['\"]", f.read())
             if match:
                 return match.group(1)
+    # 3. .env file
     env_path = os.path.join(PROJECT_DIR, ".env")
     if os.path.exists(env_path):
         with open(env_path) as f:
             for line in f:
                 if line.startswith("FOOTBALL_DATA_API_KEY="):
                     return line.strip().split("=", 1)[1].strip("'\"")
-    print("ERROR: No API key found in config.js or .env")
+    print("ERROR: No API key found in environment, config.js, or .env")
     sys.exit(1)
 
 
