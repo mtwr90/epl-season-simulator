@@ -1237,7 +1237,7 @@
             </div>
 
             <div class="how-footer">
-                <p>Standings data sourced from football-data.org as of May 12, 2026. Only remaining fixtures (matchweeks 37&ndash;38) are available for simulation.</p>
+                <p>Standings data sourced from football-data.org as of May 13, 2026. Only remaining fixtures (matchweeks 37&ndash;38) are available for simulation.</p>
                 <p>Match probabilities are statistical estimates based on 2025-26 season performance data using a Poisson distribution model.</p>
             </div>
         </div>
@@ -1323,11 +1323,11 @@
         let simulatedResults = {};
         let currentMatchweek = null;
 
-        // Baked-in data from football-data.org API (fetched May 12, 2026)
+        // Baked-in data from football-data.org API (fetched May 13, 2026)
         const BAKED_DATA = {
             standings: [
                 { id: 57, name: "Arsenal FC", shortName: "Arsenal", crest: "https://crests.football-data.org/57.png", p: 36, w: 24, d: 7, l: 5, gf: 68, ga: 26, gd: 42, pts: 79 },
-                { id: 65, name: "Manchester City FC", shortName: "Man City", crest: "https://crests.football-data.org/65.png", p: 35, w: 22, d: 8, l: 5, gf: 72, ga: 32, gd: 40, pts: 74 },
+                { id: 65, name: "Manchester City FC", shortName: "Man City", crest: "https://crests.football-data.org/65.png", p: 36, w: 23, d: 8, l: 5, gf: 75, ga: 32, gd: 43, pts: 77 },
                 { id: 66, name: "Manchester United FC", shortName: "Man United", crest: "https://crests.football-data.org/66.png", p: 36, w: 18, d: 11, l: 7, gf: 63, ga: 48, gd: 15, pts: 65 },
                 { id: 64, name: "Liverpool FC", shortName: "Liverpool", crest: "https://crests.football-data.org/64.png", p: 36, w: 17, d: 8, l: 11, gf: 60, ga: 48, gd: 12, pts: 59 },
                 { id: 58, name: "Aston Villa FC", shortName: "Aston Villa", crest: "https://crests.football-data.org/58.png", p: 36, w: 17, d: 8, l: 11, gf: 50, ga: 46, gd: 4, pts: 59 },
@@ -1340,7 +1340,7 @@
                 { id: 71, name: "Sunderland AFC", shortName: "Sunderland", crest: "https://crests.football-data.org/71.png", p: 36, w: 12, d: 12, l: 12, gf: 37, ga: 46, gd: -9, pts: 48 },
                 { id: 67, name: "Newcastle United FC", shortName: "Newcastle", crest: "https://crests.football-data.org/67.png", p: 36, w: 13, d: 7, l: 16, gf: 50, ga: 52, gd: -2, pts: 46 },
                 { id: 341, name: "Leeds United FC", shortName: "Leeds United", crest: "https://crests.football-data.org/341.png", p: 36, w: 10, d: 14, l: 12, gf: 48, ga: 53, gd: -5, pts: 44 },
-                { id: 354, name: "Crystal Palace FC", shortName: "Crystal Palace", crest: "https://crests.football-data.org/354.png", p: 35, w: 11, d: 11, l: 13, gf: 38, ga: 44, gd: -6, pts: 44 },
+                { id: 354, name: "Crystal Palace FC", shortName: "Crystal Palace", crest: "https://crests.football-data.org/354.png", p: 36, w: 11, d: 11, l: 14, gf: 38, ga: 47, gd: -9, pts: 44 },
                 { id: 351, name: "Nottingham Forest FC", shortName: "Nottingham", crest: "https://crests.football-data.org/351.png", p: 36, w: 11, d: 10, l: 15, gf: 45, ga: 47, gd: -2, pts: 43 },
                 { id: 73, name: "Tottenham Hotspur FC", shortName: "Tottenham", crest: "https://crests.football-data.org/73.png", p: 36, w: 9, d: 11, l: 16, gf: 46, ga: 55, gd: -9, pts: 38 },
                 { id: 563, name: "West Ham United FC", shortName: "West Ham", crest: "https://crests.football-data.org/563.png", p: 36, w: 9, d: 9, l: 18, gf: 42, ga: 62, gd: -20, pts: 36 },
@@ -1423,15 +1423,17 @@
 
 
 
+
             ],
             fixtures: [
                 { matchday: 37, date: "2026-05-15", homeId: 58, homeName: "Aston Villa FC", homeShort: "Aston Villa", homeCrest: "https://crests.football-data.org/58.png", awayId: 64, awayName: "Liverpool FC", awayShort: "Liverpool", awayCrest: "https://crests.football-data.org/64.png", probW: 0.44, probD: 0.24, probL: 0.32 },
                 { matchday: 37, date: "2026-05-17", homeId: 66, homeName: "Manchester United FC", homeShort: "Man United", homeCrest: "https://crests.football-data.org/66.png", awayId: 351, awayName: "Nottingham Forest FC", awayShort: "Nottingham", awayCrest: "https://crests.football-data.org/351.png", probW: 0.47, probD: 0.23, probL: 0.30 },
-                { matchday: 37, date: "2026-05-19", homeId: 61, homeName: "Chelsea FC", homeShort: "Chelsea", homeCrest: "https://crests.football-data.org/61.png", awayId: 73, awayName: "Tottenham Hotspur FC", awayShort: "Tottenham", awayCrest: "https://crests.football-data.org/73.png", probW: 0.30, probD: 0.26, probL: 0.44 },
+                { matchday: 37, date: "2026-05-19", homeId: 61, homeName: "Chelsea FC", homeShort: "Chelsea", homeCrest: "https://crests.football-data.org/61.png", awayId: 73, awayName: "Tottenham Hotspur FC", awayShort: "Tottenham", awayCrest: "https://crests.football-data.org/73.png", probW: 0.29, probD: 0.26, probL: 0.45 },
                 { matchday: 38, date: "2026-05-24", homeId: 71, homeName: "Sunderland AFC", homeShort: "Sunderland", homeCrest: "https://crests.football-data.org/71.png", awayId: 61, awayName: "Chelsea FC", awayShort: "Chelsea", awayCrest: "https://crests.football-data.org/61.png", probW: 0.30, probD: 0.26, probL: 0.44 },
                 { matchday: 38, date: "2026-05-24", homeId: 397, homeName: "Brighton & Hove Albion FC", homeShort: "Brighton Hove", homeCrest: "https://crests.football-data.org/397.png", awayId: 66, awayName: "Manchester United FC", awayShort: "Man United", awayCrest: "https://crests.football-data.org/66.png", probW: 0.47, probD: 0.25, probL: 0.28 },
-                { matchday: 38, date: "2026-05-24", homeId: 64, homeName: "Liverpool FC", homeShort: "Liverpool", homeCrest: "https://crests.football-data.org/64.png", awayId: 402, awayName: "Brentford FC", awayShort: "Brentford", awayCrest: "https://crests.football-data.org/402.png", probW: 0.61, probD: 0.21, probL: 0.18 },
-                { matchday: 38, date: "2026-05-24", homeId: 65, homeName: "Manchester City FC", homeShort: "Man City", homeCrest: "https://crests.football-data.org/65.png", awayId: 58, awayName: "Aston Villa FC", awayShort: "Aston Villa", awayCrest: "https://crests.football-data.org/58.png", probW: 0.73, probD: 0.17, probL: 0.10 }
+                { matchday: 38, date: "2026-05-24", homeId: 64, homeName: "Liverpool FC", homeShort: "Liverpool", homeCrest: "https://crests.football-data.org/64.png", awayId: 402, awayName: "Brentford FC", awayShort: "Brentford", awayCrest: "https://crests.football-data.org/402.png", probW: 0.60, probD: 0.21, probL: 0.19 },
+                { matchday: 38, date: "2026-05-24", homeId: 65, homeName: "Manchester City FC", homeShort: "Man City", homeCrest: "https://crests.football-data.org/65.png", awayId: 58, awayName: "Aston Villa FC", awayShort: "Aston Villa", awayCrest: "https://crests.football-data.org/58.png", probW: 0.74, probD: 0.17, probL: 0.09 }
+
 
 
 
