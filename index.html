@@ -1237,7 +1237,7 @@
             </div>
 
             <div class="how-footer">
-                <p>Standings data sourced from football-data.org as of Nov 13, 2026. Only remaining fixtures (matchweeks 11&ndash;38) are available for simulation.</p>
+                <p>Standings data sourced from football-data.org as of Nov 14, 2026. Only remaining fixtures (matchweeks 11&ndash;38) are available for simulation.</p>
                 <p>Match probabilities are statistical estimates based on 2025-26 season performance data using a Poisson distribution model.</p>
             </div>
         </div>
@@ -1323,7 +1323,7 @@
         let simulatedResults = {};
         let currentMatchweek = null;
 
-        // Baked-in data from football-data.org API (fetched Nov 13, 2026)
+        // Baked-in data from football-data.org API (fetched Nov 14, 2026)
         const BAKED_DATA = {
             standings: [
                 { id: 57, name: "Arsenal FC", shortName: "Arsenal", crest: "https://crests.football-data.org/57.png", p: 10, w: 9, d: 0, l: 1, gf: 15, ga: 5, gd: 10, pts: 27 },
@@ -1346,6 +1346,7 @@
                 { id: 66, name: "Manchester United FC", shortName: "Man United", crest: "https://crests.football-data.org/66.png", p: 10, w: 1, d: 5, l: 4, gf: 14, ga: 19, gd: -5, pts: 8 },
                 { id: 71, name: "Sunderland AFC", shortName: "Sunderland", crest: "https://crests.football-data.org/71.png", p: 10, w: 2, d: 2, l: 6, gf: 8, ga: 17, gd: -9, pts: 8 },
                 { id: 354, name: "Crystal Palace FC", shortName: "Crystal Palace", crest: "https://crests.football-data.org/354.png", p: 10, w: 2, d: 1, l: 7, gf: 10, ga: 24, gd: -14, pts: 7 }
+
 
 
 
@@ -1710,6 +1711,7 @@
                 { matchday: 38, date: "2027-05-30", homeId: 58, homeName: "Aston Villa FC", homeShort: "Aston Villa", homeCrest: "https://crests.football-data.org/58.png", awayId: 73, awayName: "Tottenham Hotspur FC", awayShort: "Tottenham", awayCrest: "https://crests.football-data.org/73.png", probW: 0.34, probD: 0.37, probL: 0.29 },
                 { matchday: 38, date: "2027-05-30", homeId: 66, homeName: "Manchester United FC", homeShort: "Man United", homeCrest: "https://crests.football-data.org/66.png", awayId: 63, awayName: "Fulham FC", awayShort: "Fulham", awayCrest: "https://crests.football-data.org/63.png", probW: 0.34, probD: 0.30, probL: 0.36 },
                 { matchday: 38, date: "2027-05-30", homeId: 61, homeName: "Chelsea FC", homeShort: "Chelsea", homeCrest: "https://crests.football-data.org/61.png", awayId: 402, awayName: "Brentford FC", awayShort: "Brentford", awayCrest: "https://crests.football-data.org/402.png", probW: 0.61, probD: 0.18, probL: 0.21 }
+
 
 
 
